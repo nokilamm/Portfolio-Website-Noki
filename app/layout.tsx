@@ -3,6 +3,7 @@ import { Playfair_Display, Outfit } from 'next/font/google'
 import './globals.css'
 import { SanityLive } from '@/sanity/lib/live'
 import { Navbar } from '@/components/ui/mini-navbar'
+import { Footer } from '@/components/ui/footer'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body>
         <Navbar />
         {children}
+        <Footer />
         <SanityLive />
       </body>
     </html>
