@@ -41,17 +41,20 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
   // biome-ignore lint/suspicious/noExplicitAny: external lib
   const shaderMountRef = useRef<any>(null)
 
-  // GSAP scroll scale effect
+  // GSAP scroll scale effect + active border
   useEffect(() => {
     const card = cardRef.current
     const container = containerRef.current
-    if (!card || !container) return
+    const border = shaderBorderRef.current
+    if (!card || !container || !border) return
 
     const targetScale = 1 - (totalCards - index) * 0.05
 
     gsap.set(card, { scale: 1, transformOrigin: 'center top' })
+    // Only the first card starts with its border visible
+    gsap.set(border, { opacity: index === 0 ? 1 : 0 })
 
-    const trigger = ScrollTrigger.create({
+    const scaleTrigger = ScrollTrigger.create({
       trigger: container,
       start: 'top center',
       end: 'bottom center',
@@ -65,7 +68,21 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
       },
     })
 
-    return () => trigger.kill()
+    // Fade border in when this card becomes active, out when it's not
+    const activeTrigger = ScrollTrigger.create({
+      trigger: container,
+      start: 'top center',
+      end: 'bottom center',
+      onEnter: () => gsap.to(border, { opacity: 1, duration: 0.4, ease: 'power2.out' }),
+      onLeave: () => gsap.to(border, { opacity: 0, duration: 0.4, ease: 'power2.in' }),
+      onEnterBack: () => gsap.to(border, { opacity: 1, duration: 0.4, ease: 'power2.out' }),
+      onLeaveBack: () => gsap.to(border, { opacity: 0, duration: 0.4, ease: 'power2.in' }),
+    })
+
+    return () => {
+      scaleTrigger.kill()
+      activeTrigger.kill()
+    }
   }, [index, totalCards])
 
   // Liquid metal shader border
