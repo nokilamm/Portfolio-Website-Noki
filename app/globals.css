@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --bg: #1c0808;
+  --bg: #0c0d14;
   --header-h: 72px;
   --card-side-pad: 4vw;
   --radius: 18px;
