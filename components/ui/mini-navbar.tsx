@@ -11,19 +11,12 @@ export function Navbar() {
 
   return (
     <header
-      className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-8 px-7 py-3 rounded-full"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center gap-8 px-7 py-4"
       style={{
-        background: 'rgba(255,255,255,0.03)',
-        backdropFilter: 'blur(2px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(2px) saturate(180%)',
-        border: '1px solid rgba(255,255,255,0.15)',
-        boxShadow: `
-          inset 1px 1px 0px rgba(255,255,255,0.25),
-          inset -1px -1px 0px rgba(255,255,255,0.08),
-          inset 0 0 20px rgba(255,255,255,0.03),
-          0 8px 32px rgba(0,0,0,0.4),
-          0 2px 8px rgba(0,0,0,0.3)
-        `,
+        background: 'rgba(20,20,20,0.7)',
+        backdropFilter: 'blur(12px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
       }}
     >
       {navLinks.map((link) => (
