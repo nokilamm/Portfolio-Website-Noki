@@ -146,7 +146,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
           width: '70%',
           height: '450px',
           borderRadius: '24px',
-          border: '1px solid rgba(255,255,255,0.08)',
+          border: '1px solid rgba(255,255,255,0.18)',
           isolation: 'isolate',
           top: `calc(-5vh + ${index * 25}px)`,
           transformOrigin: 'top',
