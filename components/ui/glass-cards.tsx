@@ -85,36 +85,34 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
     if (!card || !container || !border) return
 
     const targetScale = 1 - (totalCards - index) * 0.05
+    // Set transformOrigin once — never needs to change, don't repeat in onUpdate
     gsap.set(card, { scale: 1, transformOrigin: 'center top' })
     gsap.set(border, { opacity: index === 0 ? 1 : 0 })
 
     if (index === 0) mountShader()
 
-    // Scrubbed scale animation — lags 0.6s behind scroll for a smooth, gradual feel
-    const scaleAnim = gsap.fromTo(card,
-      { scale: 1 },
-      { scale: targetScale, ease: 'none', paused: true }
-    )
-
+    // Single trigger handles both scale and shader lifecycle — half the trigger objects
     const trigger = ScrollTrigger.create({
       trigger: container,
       start: 'top center',
       end: 'bottom center',
-      scrub: 0.6,
-      animation: scaleAnim,
       onEnter: () => {
         mountShader()
-        gsap.to(border, { opacity: 1, duration: 0.7, ease: 'power2.out' })
+        gsap.to(border, { opacity: 1, duration: 0.4, ease: 'power2.out' })
       },
       onLeave: () => {
-        gsap.to(border, { opacity: 0, duration: 0.7, ease: 'power2.in', onComplete: destroyShader })
+        gsap.to(border, { opacity: 0, duration: 0.4, ease: 'power2.in', onComplete: destroyShader })
       },
       onEnterBack: () => {
         mountShader()
-        gsap.to(border, { opacity: 1, duration: 0.7, ease: 'power2.out' })
+        gsap.to(border, { opacity: 1, duration: 0.4, ease: 'power2.out' })
       },
       onLeaveBack: () => {
-        gsap.to(border, { opacity: 0, duration: 0.7, ease: 'power2.in', onComplete: destroyShader })
+        gsap.to(border, { opacity: 0, duration: 0.4, ease: 'power2.in', onComplete: destroyShader })
+      },
+      onUpdate: (self) => {
+        // Only update scale — transformOrigin is already set and cached by GSAP
+        gsap.set(card, { scale: Math.max(gsap.utils.interpolate(1, targetScale, self.progress), targetScale) })
       },
     })
 
