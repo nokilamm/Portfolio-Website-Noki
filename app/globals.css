@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #1c0808;
+  --header-h: 72px;
+  --card-side-pad: 4vw;
+  --radius: 18px;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+  color: #fff;
+}
+
+.card-shader-bg canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+/* Hover state for card arrows */
+.project-card:hover .card-arrow-icon {
+  transform: translateX(4px);
+}
