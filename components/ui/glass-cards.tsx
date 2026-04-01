@@ -27,29 +27,6 @@ function injectShaderStyles() {
   document.head.appendChild(style)
 }
 
-// SVG glass distortion filter — injected once into the DOM
-function GlassFilter() {
-  return (
-    <svg className="absolute" style={{ width: 0, height: 0, position: 'absolute' }}>
-      <defs>
-        <filter
-          id="card-glass-filter"
-          x="0%"
-          y="0%"
-          width="100%"
-          height="100%"
-          colorInterpolationFilters="sRGB"
-        >
-          <feTurbulence type="fractalNoise" baseFrequency="0.04 0.04" numOctaves="1" seed="2" result="turbulence" />
-          <feGaussianBlur in="turbulence" stdDeviation="3" result="blurredNoise" />
-          <feDisplacementMap in="SourceGraphic" in2="blurredNoise" scale="50" xChannelSelector="R" yChannelSelector="B" result="displaced" />
-          <feGaussianBlur in="displaced" stdDeviation="3" result="finalBlur" />
-          <feComposite in="finalBlur" in2="finalBlur" operator="over" />
-        </filter>
-      </defs>
-    </svg>
-  )
-}
 
 interface CardProps {
   caseStudy: CaseStudy
@@ -181,29 +158,13 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
               borderRadius: '24px',
               background: 'linear-gradient(180deg, #111111 0%, #060606 100%)',
               boxShadow: `
-                inset 3px 3px 0.5px -3.5px rgba(255,255,255,0.09),
-                inset -3px -3px 0.5px -3.5px rgba(255,255,255,0.85),
-                inset 1px 1px 1px -0.5px rgba(255,255,255,0.6),
-                inset -1px -1px 1px -0.5px rgba(255,255,255,0.6),
-                inset 0 0 6px 6px rgba(255,255,255,0.12),
-                inset 0 0 2px 2px rgba(255,255,255,0.06),
-                0 0 12px rgba(0,0,0,0.15)
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                inset 1px 0 0 rgba(255,255,255,0.04)
               `,
               overflow: 'hidden',
               cursor: 'pointer',
             }}
           >
-            {/* Glass distortion backdrop layer */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: '24px',
-                backdropFilter: 'url("#card-glass-filter")',
-                pointerEvents: 'none',
-                zIndex: 0,
-              }}
-            />
 
             {/* Tags */}
             {caseStudy.tags && caseStudy.tags.length > 0 && (
@@ -257,8 +218,6 @@ export const GlassCards: React.FC<GlassCardsProps> = ({ caseStudies }) => {
 
   return (
     <main ref={containerRef} style={{ background: '#0a0a0a' }}>
-      {/* SVG filter injected once for all cards */}
-      <GlassFilter />
       <section style={{ color: '#ffffff', width: '100%' }}>
         {caseStudies.map((cs, index) => (
           <GlassCard
