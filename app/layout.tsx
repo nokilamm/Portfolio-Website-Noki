@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Playfair_Display, Outfit } from 'next/font/google'
 import './globals.css'
 import { SanityLive } from '@/sanity/lib/live'
-import MistBackground from '@/components/ui/mist-background'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -32,7 +31,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${playfair.variable} ${outfit.variable}`}>
       <body>
-        <MistBackground />
         {children}
         <SanityLive />
       </body>
