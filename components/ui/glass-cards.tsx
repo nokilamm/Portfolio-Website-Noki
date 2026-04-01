@@ -86,16 +86,16 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
     // Mount shader immediately for the first card
     if (index === 0) mountShader()
 
-    // quickSetter is ~3x faster than gsap.set in onUpdate
-    const setScale = gsap.quickSetter(card, 'scale') as (v: number) => void
-
     const scaleTrigger = ScrollTrigger.create({
       trigger: container,
       start: 'top center',
       end: 'bottom center',
       scrub: 0.3,
       onUpdate: (self) => {
-        setScale(Math.max(gsap.utils.interpolate(1, targetScale, self.progress), targetScale))
+        gsap.set(card, {
+          scale: Math.max(gsap.utils.interpolate(1, targetScale, self.progress), targetScale),
+          transformOrigin: 'center top',
+        })
       },
     })
 
