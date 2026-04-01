@@ -14,7 +14,7 @@ html {
 }
 
 body {
-  background: var(--bg);
+  background: transparent;
   font-family: 'Outfit', sans-serif;
   overflow-x: hidden;
   color: #fff;
