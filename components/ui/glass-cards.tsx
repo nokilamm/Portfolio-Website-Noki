@@ -129,6 +129,11 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
           isolation: 'isolate',
           top: `calc(-5vh + ${index * 25}px)`,
           transformOrigin: 'top',
+          filter: `
+            drop-shadow(0 40px 60px rgba(0,0,0,0.9))
+            drop-shadow(0 15px 25px rgba(0,0,0,0.7))
+            drop-shadow(0 0 40px rgba(255,255,255,0.04))
+          `,
         }}
       >
         {/* Liquid metal border — fills slightly beyond card, shader peeks out as the glowing rim */}
