@@ -27,6 +27,30 @@ function injectShaderStyles() {
   document.head.appendChild(style)
 }
 
+// SVG glass distortion filter — injected once into the DOM
+function GlassFilter() {
+  return (
+    <svg className="absolute" style={{ width: 0, height: 0, position: 'absolute' }}>
+      <defs>
+        <filter
+          id="card-glass-filter"
+          x="0%"
+          y="0%"
+          width="100%"
+          height="100%"
+          colorInterpolationFilters="sRGB"
+        >
+          <feTurbulence type="fractalNoise" baseFrequency="0.04 0.04" numOctaves="1" seed="2" result="turbulence" />
+          <feGaussianBlur in="turbulence" stdDeviation="3" result="blurredNoise" />
+          <feDisplacementMap in="SourceGraphic" in2="blurredNoise" scale="50" xChannelSelector="R" yChannelSelector="B" result="displaced" />
+          <feGaussianBlur in="displaced" stdDeviation="3" result="finalBlur" />
+          <feComposite in="finalBlur" in2="finalBlur" operator="over" />
+        </filter>
+      </defs>
+    </svg>
+  )
+}
+
 interface CardProps {
   caseStudy: CaseStudy
   index: number
@@ -130,7 +154,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
           transformOrigin: 'top',
         }}
       >
-        {/* Liquid metal border */}
+        {/* Liquid metal border — fills slightly beyond card, shader peeks out as the glowing rim */}
         <div
           ref={shaderBorderRef}
           className="glass-card-shader"
@@ -143,7 +167,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
           }}
         />
 
-        {/* Card content */}
+        {/* Card interior — dark glass, blocks shader except for 3px rim */}
         <Link href={`/work/${caseStudy.slug}`} style={{ display: 'block', height: '100%' }}>
           <div
             style={{
@@ -155,30 +179,37 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
               justifyContent: 'flex-end',
               padding: '2.5rem',
               borderRadius: '24px',
-              background: `linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))`,
-              backdropFilter: 'blur(25px) saturate(180%)',
-              border: '1px solid rgba(255,255,255,0.2)',
+              background: 'linear-gradient(180deg, #111111 0%, #060606 100%)',
               boxShadow: `
-                0 8px 32px rgba(0,0,0,0.3),
-                0 2px 8px rgba(0,0,0,0.2),
-                inset 0 1px 0 rgba(255,255,255,0.3),
-                inset 0 -1px 0 rgba(255,255,255,0.1)
+                inset 3px 3px 0.5px -3.5px rgba(255,255,255,0.09),
+                inset -3px -3px 0.5px -3.5px rgba(255,255,255,0.85),
+                inset 1px 1px 1px -0.5px rgba(255,255,255,0.6),
+                inset -1px -1px 1px -0.5px rgba(255,255,255,0.6),
+                inset 0 0 6px 6px rgba(255,255,255,0.12),
+                inset 0 0 2px 2px rgba(255,255,255,0.06),
+                0 0 12px rgba(0,0,0,0.15)
               `,
               overflow: 'hidden',
               cursor: 'pointer',
             }}
           >
-            {/* Glass reflections */}
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '60%', background: 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 50%, transparent 100%)', pointerEvents: 'none', borderRadius: '24px 24px 0 0' }} />
-            <div style={{ position: 'absolute', top: '10px', left: '10px', right: '10px', height: '2px', background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)', borderRadius: '1px', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '2px', height: '100%', background: 'linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 50%)', borderRadius: '24px 0 0 24px', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 1px, transparent 2px), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.08) 1px, transparent 2px), radial-gradient(circle at 40% 80%, rgba(255,255,255,0.06) 1px, transparent 2px)`, backgroundSize: '30px 30px, 25px 25px, 35px 35px', pointerEvents: 'none', borderRadius: '24px', opacity: 0.7 }} />
+            {/* Glass distortion backdrop layer */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '24px',
+                backdropFilter: 'url("#card-glass-filter")',
+                pointerEvents: 'none',
+                zIndex: 0,
+              }}
+            />
 
             {/* Tags */}
             {caseStudy.tags && caseStudy.tags.length > 0 && (
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem', position: 'relative', zIndex: 2 }}>
                 {caseStudy.tags.slice(0, 3).map((tag) => (
-                  <span key={tag} style={{ fontSize: '0.7rem', fontFamily: 'Outfit, sans-serif', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.25rem 0.75rem', borderRadius: '999px', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.7)' }}>
+                  <span key={tag} style={{ fontSize: '0.7rem', fontFamily: 'Outfit, sans-serif', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.25rem 0.75rem', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>
                     {tag}
                   </span>
                 ))}
@@ -186,13 +217,13 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
             )}
 
             {/* Title */}
-            <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontStyle: 'italic', fontWeight: 400, fontSize: 'clamp(1.6rem, 3vw, 2.5rem)', color: 'rgba(255,255,255,0.92)', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: '0.75rem', position: 'relative', zIndex: 2, textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
+            <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontStyle: 'italic', fontWeight: 400, fontSize: 'clamp(1.6rem, 3vw, 2.5rem)', color: 'rgba(255,255,255,0.92)', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: '0.75rem', position: 'relative', zIndex: 2, textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}>
               {caseStudy.client || caseStudy.title}
             </h3>
 
             {/* Description */}
             {caseStudy.description && (
-              <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 300, fontSize: '0.95rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, position: 'relative', zIndex: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+              <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 300, fontSize: '0.95rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, position: 'relative', zIndex: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                 {caseStudy.description}
               </p>
             )}
@@ -200,8 +231,8 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
             {/* Year / Role */}
             {(caseStudy.year || caseStudy.role) && (
               <div style={{ marginTop: '1rem', display: 'flex', gap: '1.5rem', position: 'relative', zIndex: 2 }}>
-                {caseStudy.year && <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.8rem', color: 'rgba(255,255,255,0.35)' }}>{caseStudy.year}</span>}
-                {caseStudy.role && <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.8rem', color: 'rgba(255,255,255,0.35)' }}>{caseStudy.role}</span>}
+                {caseStudy.year && <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)' }}>{caseStudy.year}</span>}
+                {caseStudy.role && <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)' }}>{caseStudy.role}</span>}
               </div>
             )}
           </div>
@@ -226,6 +257,8 @@ export const GlassCards: React.FC<GlassCardsProps> = ({ caseStudies }) => {
 
   return (
     <main ref={containerRef} style={{ background: '#0a0a0a' }}>
+      {/* SVG filter injected once for all cards */}
+      <GlassFilter />
       <section style={{ color: '#ffffff', width: '100%' }}>
         {caseStudies.map((cs, index) => (
           <GlassCard
