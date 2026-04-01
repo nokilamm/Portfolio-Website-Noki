@@ -180,7 +180,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
               justifyContent: 'flex-end',
               padding: '2.5rem',
               borderRadius: '24px',
-              background: 'rgba(12, 12, 12, 0.65)',
+              background: 'rgba(12, 12, 12, 0.82)',
               backdropFilter: 'blur(18px) saturate(140%) brightness(0.9)',
               boxShadow: `
                 inset 0 1px 0 rgba(255,255,255,0.12),
@@ -263,7 +263,7 @@ export const GlassCards: React.FC<GlassCardsProps> = ({ caseStudies }) => {
   }, [])
 
   return (
-    <main ref={containerRef} style={{ background: 'transparent' }}>
+    <main ref={containerRef} style={{ background: '#0a0a0a' }}>
       <section style={{ color: '#ffffff', width: '100%' }}>
         {caseStudies.map((cs, index) => (
           <GlassCard
