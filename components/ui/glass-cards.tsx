@@ -41,7 +41,38 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
   // biome-ignore lint/suspicious/noExplicitAny: external lib
   const shaderMountRef = useRef<any>(null)
 
-  // GSAP scroll scale effect + active border
+  // Lazy-mount shader only while this card is active — saves N-1 WebGL loops
+  const mountShader = () => {
+    const el = shaderBorderRef.current
+    if (!el || shaderMountRef.current) return
+    injectShaderStyles()
+    const angle = caseStudy.shaderAngle ?? 45
+    const offsetX = caseStudy.shaderOffsetX ?? 0.1
+    const offsetY = caseStudy.shaderOffsetY ?? -0.1
+    import('@paper-design/shaders').then(({ ShaderMount, liquidMetalFragmentShader }) => {
+      if (!el || shaderMountRef.current) return
+      shaderMountRef.current = new ShaderMount(el, liquidMetalFragmentShader, {
+        u_repetition: 4,
+        u_softness: 0.82,
+        u_shiftRed: 0.3,
+        u_shiftBlue: 0.3,
+        u_distortion: 0,
+        u_contour: 0,
+        u_angle: angle,
+        u_scale: 5,
+        u_shape: 1,
+        u_offsetX: offsetX,
+        u_offsetY: offsetY,
+      }, undefined, 0.6)
+    }).catch((e) => console.error('[glass-card shader] failed:', e))
+  }
+
+  const destroyShader = () => {
+    shaderMountRef.current?.destroy?.()
+    shaderMountRef.current = null
+  }
+
+  // GSAP scroll scale + active border/shader lifecycle
   useEffect(() => {
     const card = cardRef.current
     const container = containerRef.current
@@ -49,10 +80,14 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
     if (!card || !container || !border) return
 
     const targetScale = 1 - (totalCards - index) * 0.05
-
     gsap.set(card, { scale: 1, transformOrigin: 'center top' })
-    // Only the first card starts with its border visible
     gsap.set(border, { opacity: index === 0 ? 1 : 0 })
+
+    // Mount shader immediately for the first card
+    if (index === 0) mountShader()
+
+    // quickSetter is ~3x faster than gsap.set in onUpdate
+    const setScale = gsap.quickSetter(card, 'scale') as (v: number) => void
 
     const scaleTrigger = ScrollTrigger.create({
       trigger: container,
@@ -60,69 +95,37 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
       end: 'bottom center',
       scrub: 0.3,
       onUpdate: (self) => {
-        const scale = gsap.utils.interpolate(1, targetScale, self.progress)
-        gsap.set(card, {
-          scale: Math.max(scale, targetScale),
-          transformOrigin: 'center top',
-        })
+        setScale(Math.max(gsap.utils.interpolate(1, targetScale, self.progress), targetScale))
       },
     })
 
-    // Fade border in when this card becomes active, out when it's not
     const activeTrigger = ScrollTrigger.create({
       trigger: container,
       start: 'top center',
       end: 'bottom center',
-      onEnter: () => gsap.to(border, { opacity: 1, duration: 0.4, ease: 'power2.out' }),
-      onLeave: () => gsap.to(border, { opacity: 0, duration: 0.4, ease: 'power2.in' }),
-      onEnterBack: () => gsap.to(border, { opacity: 1, duration: 0.4, ease: 'power2.out' }),
-      onLeaveBack: () => gsap.to(border, { opacity: 0, duration: 0.4, ease: 'power2.in' }),
+      onEnter: () => {
+        mountShader()
+        gsap.to(border, { opacity: 1, duration: 0.4, ease: 'power2.out' })
+      },
+      onLeave: () => {
+        gsap.to(border, { opacity: 0, duration: 0.4, ease: 'power2.in', onComplete: destroyShader })
+      },
+      onEnterBack: () => {
+        mountShader()
+        gsap.to(border, { opacity: 1, duration: 0.4, ease: 'power2.out' })
+      },
+      onLeaveBack: () => {
+        gsap.to(border, { opacity: 0, duration: 0.4, ease: 'power2.in', onComplete: destroyShader })
+      },
     })
 
     return () => {
       scaleTrigger.kill()
       activeTrigger.kill()
+      destroyShader()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, totalCards])
-
-  // Liquid metal shader border
-  useEffect(() => {
-    injectShaderStyles()
-    if (!shaderBorderRef.current) return
-
-    const el = shaderBorderRef.current
-    const angle = caseStudy.shaderAngle ?? 45
-    const offsetX = caseStudy.shaderOffsetX ?? 0.1
-    const offsetY = caseStudy.shaderOffsetY ?? -0.1
-
-    import('@paper-design/shaders').then(({ ShaderMount, liquidMetalFragmentShader }) => {
-      if (!el) return
-      shaderMountRef.current = new ShaderMount(
-        el,
-        liquidMetalFragmentShader,
-        {
-          u_repetition: 4,
-          u_softness: 0.82,
-          u_shiftRed: 0.3,
-          u_shiftBlue: 0.3,
-          u_distortion: 0,
-          u_contour: 0,
-          u_angle: angle,
-          u_scale: 5,
-          u_shape: 1,
-          u_offsetX: offsetX,
-          u_offsetY: offsetY,
-        },
-        undefined,
-        0.6,
-      )
-    }).catch((e) => console.error('[glass-card shader] failed:', e))
-
-    return () => {
-      shaderMountRef.current?.destroy?.()
-      shaderMountRef.current = null
-    }
-  }, [caseStudy.shaderAngle, caseStudy.shaderOffsetX, caseStudy.shaderOffsetY])
 
   return (
     <div
@@ -181,7 +184,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
               padding: '2.5rem',
               borderRadius: '24px',
               background: 'rgba(12, 12, 12, 0.82)',
-              backdropFilter: 'blur(18px) saturate(140%) brightness(0.9)',
+              backdropFilter: 'blur(10px) saturate(140%) brightness(0.9)',
               boxShadow: `
                 inset 0 1px 0 rgba(255,255,255,0.12),
                 inset 0 -1px 0 rgba(0,0,0,0.4),
