@@ -8,6 +8,11 @@ import Link from 'next/link'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// Preload shader module immediately — caches it so first card activation is instant
+if (typeof window !== 'undefined') {
+  import('@paper-design/shaders').catch(() => {})
+}
+
 function injectShaderStyles() {
   const styleId = 'shader-canvas-style-glass-cards'
   if (document.getElementById(styleId)) return
@@ -80,26 +85,14 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
     if (!card || !container || !border) return
 
     const targetScale = 1 - (totalCards - index) * 0.05
+    // Set transformOrigin once — never needs to change, don't repeat in onUpdate
     gsap.set(card, { scale: 1, transformOrigin: 'center top' })
     gsap.set(border, { opacity: index === 0 ? 1 : 0 })
 
-    // Mount shader immediately for the first card
     if (index === 0) mountShader()
 
-    const scaleTrigger = ScrollTrigger.create({
-      trigger: container,
-      start: 'top center',
-      end: 'bottom center',
-      scrub: 0.3,
-      onUpdate: (self) => {
-        gsap.set(card, {
-          scale: Math.max(gsap.utils.interpolate(1, targetScale, self.progress), targetScale),
-          transformOrigin: 'center top',
-        })
-      },
-    })
-
-    const activeTrigger = ScrollTrigger.create({
+    // Single trigger handles both scale and shader lifecycle — half the trigger objects
+    const trigger = ScrollTrigger.create({
       trigger: container,
       start: 'top center',
       end: 'bottom center',
@@ -117,11 +110,14 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
       onLeaveBack: () => {
         gsap.to(border, { opacity: 0, duration: 0.4, ease: 'power2.in', onComplete: destroyShader })
       },
+      onUpdate: (self) => {
+        // Only update scale — transformOrigin is already set and cached by GSAP
+        gsap.set(card, { scale: Math.max(gsap.utils.interpolate(1, targetScale, self.progress), targetScale) })
+      },
     })
 
     return () => {
-      scaleTrigger.kill()
-      activeTrigger.kill()
+      trigger.kill()
       destroyShader()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -168,6 +164,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
             borderRadius: '27px',
             overflow: 'hidden',
             zIndex: -1,
+            willChange: 'opacity',
           }}
         />
 
