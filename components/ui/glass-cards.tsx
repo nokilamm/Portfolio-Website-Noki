@@ -8,6 +8,25 @@ import Link from 'next/link'
 
 gsap.registerPlugin(ScrollTrigger)
 
+function injectShaderStyles() {
+  const styleId = 'shader-canvas-style-glass-cards'
+  if (document.getElementById(styleId)) return
+  const style = document.createElement('style')
+  style.id = styleId
+  style.textContent = `
+    .glass-card-shader canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      border-radius: 27px !important;
+    }
+  `
+  document.head.appendChild(style)
+}
+
 interface CardProps {
   caseStudy: CaseStudy
   index: number
@@ -17,8 +36,11 @@ interface CardProps {
 const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
   const cardRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const color = caseStudy.color || 'rgba(180,140,255,0.8)'
+  const shaderBorderRef = useRef<HTMLDivElement>(null)
+  // biome-ignore lint/suspicious/noExplicitAny: external lib
+  const shaderMountRef = useRef<any>(null)
 
+  // GSAP scroll scale effect
   useEffect(() => {
     const card = cardRef.current
     const container = containerRef.current
@@ -45,6 +67,45 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
     return () => trigger.kill()
   }, [index, totalCards])
 
+  // Liquid metal shader border
+  useEffect(() => {
+    injectShaderStyles()
+    if (!shaderBorderRef.current) return
+
+    const el = shaderBorderRef.current
+    const angle = caseStudy.shaderAngle ?? 45
+    const offsetX = caseStudy.shaderOffsetX ?? 0.1
+    const offsetY = caseStudy.shaderOffsetY ?? -0.1
+
+    import('@paper-design/shaders').then(({ ShaderMount, liquidMetalFragmentShader }) => {
+      if (!el) return
+      shaderMountRef.current = new ShaderMount(
+        el,
+        liquidMetalFragmentShader,
+        {
+          u_repetition: 4,
+          u_softness: 0.5,
+          u_shiftRed: 0.3,
+          u_shiftBlue: 0.3,
+          u_distortion: 0,
+          u_contour: 0,
+          u_angle: angle,
+          u_scale: 8,
+          u_shape: 1,
+          u_offsetX: offsetX,
+          u_offsetY: offsetY,
+        },
+        undefined,
+        0.6,
+      )
+    }).catch((e) => console.error('[glass-card shader] failed:', e))
+
+    return () => {
+      shaderMountRef.current?.destroy?.()
+      shaderMountRef.current = null
+    }
+  }, [caseStudy.shaderAngle, caseStudy.shaderOffsetX, caseStudy.shaderOffsetY])
+
   return (
     <div
       ref={containerRef}
@@ -69,22 +130,15 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
           transformOrigin: 'top',
         }}
       >
-        {/* Electric border */}
+        {/* Liquid metal border */}
         <div
+          ref={shaderBorderRef}
+          className="glass-card-shader"
           style={{
             position: 'absolute',
             inset: '-3px',
             borderRadius: '27px',
-            padding: '3px',
-            background: `conic-gradient(
-              from 0deg,
-              transparent 0deg,
-              ${color} 60deg,
-              ${color.replace('0.8)', '0.6)')} 120deg,
-              transparent 180deg,
-              ${color.replace('0.8)', '0.4)')} 240deg,
-              transparent 360deg
-            )`,
+            overflow: 'hidden',
             zIndex: -1,
           }}
         />
@@ -172,7 +226,6 @@ export const GlassCards: React.FC<GlassCardsProps> = ({ caseStudies }) => {
 
   return (
     <main ref={containerRef} style={{ background: '#0a0a0a' }}>
-      {/* Cards */}
       <section style={{ color: '#ffffff', width: '100%' }}>
         {caseStudies.map((cs, index) => (
           <GlassCard
