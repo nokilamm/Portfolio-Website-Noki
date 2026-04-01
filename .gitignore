@@ -19,6 +19,16 @@ npm-debug.log*
 # screenshots (dev tool)
 temporary screenshots/
 
+# dev tools
+serve.mjs
+screenshot.mjs
+screenshot-scroll.mjs
+
+# claude code local files
+.claude/
+CLAUDE.md
+taste-skill-main/
+
 # build
 dist/
 node_modules
