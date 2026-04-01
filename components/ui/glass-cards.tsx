@@ -156,15 +156,37 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
               justifyContent: 'flex-end',
               padding: '2.5rem',
               borderRadius: '24px',
-              background: 'linear-gradient(180deg, #111111 0%, #060606 100%)',
+              background: 'rgba(12, 12, 12, 0.82)',
+              backdropFilter: 'blur(18px) saturate(140%) brightness(0.9)',
               boxShadow: `
-                inset 0 1px 0 rgba(255,255,255,0.08),
-                inset 1px 0 0 rgba(255,255,255,0.04)
+                inset 0 1px 0 rgba(255,255,255,0.12),
+                inset 0 -1px 0 rgba(0,0,0,0.4),
+                inset 1px 0 0 rgba(255,255,255,0.05),
+                inset -1px 0 0 rgba(0,0,0,0.2)
               `,
               overflow: 'hidden',
               cursor: 'pointer',
             }}
           >
+            {/* Upper gloss — curved light reflection in top third */}
+            <div style={{
+              position: 'absolute', top: 0, left: 0, right: 0, height: '42%',
+              background: 'linear-gradient(160deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 40%, transparent 100%)',
+              borderRadius: '24px 24px 0 0',
+              pointerEvents: 'none',
+            }} />
+            {/* Top specular line — simulates light hitting the top rim */}
+            <div style={{
+              position: 'absolute', top: '1px', left: '12%', right: '12%', height: '1px',
+              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 35%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.35) 65%, transparent 100%)',
+              pointerEvents: 'none',
+            }} />
+            {/* Left edge catch light */}
+            <div style={{
+              position: 'absolute', top: '8%', left: '1px', width: '1px', bottom: '30%',
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 100%)',
+              pointerEvents: 'none',
+            }} />
 
             {/* Tags */}
             {caseStudy.tags && caseStudy.tags.length > 0 && (
