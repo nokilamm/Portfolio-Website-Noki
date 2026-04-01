@@ -55,7 +55,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
       trigger: container,
       start: 'top center',
       end: 'bottom center',
-      scrub: 1,
+      scrub: 0.3,
       onUpdate: (self) => {
         const scale = gsap.utils.interpolate(1, targetScale, self.progress)
         gsap.set(card, {
@@ -129,10 +129,11 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
           isolation: 'isolate',
           top: `calc(-5vh + ${index * 25}px)`,
           transformOrigin: 'top',
-          filter: `
-            drop-shadow(0 40px 60px rgba(0,0,0,0.9))
-            drop-shadow(0 15px 25px rgba(0,0,0,0.7))
-            drop-shadow(0 0 40px rgba(255,255,255,0.04))
+          willChange: 'transform',
+          boxShadow: `
+            0 40px 60px rgba(0,0,0,0.9),
+            0 15px 25px rgba(0,0,0,0.7),
+            0 0 40px rgba(255,255,255,0.04)
           `,
         }}
       >
