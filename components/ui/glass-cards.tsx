@@ -245,7 +245,7 @@ export const GlassCards: React.FC<GlassCardsProps> = ({ caseStudies }) => {
   }, [])
 
   return (
-    <main ref={containerRef} style={{ background: '#0a0a0a' }}>
+    <main ref={containerRef} style={{ background: 'transparent' }}>
       <section style={{ color: '#ffffff', width: '100%' }}>
         {caseStudies.map((cs, index) => (
           <GlassCard
