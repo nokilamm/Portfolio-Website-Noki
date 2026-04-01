@@ -26,8 +26,6 @@ screenshot-scroll.mjs
 
 # claude code local files
 .claude/
-CLAUDE.md
-taste-skill-main/
 
 # build
 dist/
