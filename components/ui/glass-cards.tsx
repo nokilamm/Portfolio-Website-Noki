@@ -77,22 +77,23 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
     shaderMountRef.current = null
   }
 
-  // 3D tilt on hover — GSAP merges rotateX/Y with existing scale, no conflict
+  // 3D tilt on hover — quickTo skips tween setup overhead on every mousemove
   useEffect(() => {
     const card = cardRef.current
     if (!card) return
 
+    const rotateXTo = gsap.quickTo(card, 'rotateX', { duration: 0.25, ease: 'power2.out' })
+    const rotateYTo = gsap.quickTo(card, 'rotateY', { duration: 0.25, ease: 'power2.out' })
+
     const handleMouseMove = (e: MouseEvent) => {
       const rect = card.getBoundingClientRect()
-      const x = (e.clientX - rect.left) / rect.width
-      const y = (e.clientY - rect.top) / rect.height
-      const rotateY = (x - 0.5) * 14
-      const rotateX = (0.5 - y) * 10
-      gsap.to(card, { rotateX, rotateY, duration: 0.25, ease: 'power2.out', overwrite: 'auto' })
+      rotateYTo((((e.clientX - rect.left) / rect.width) - 0.5) * 14)
+      rotateXTo((0.5 - ((e.clientY - rect.top) / rect.height)) * 10)
     }
 
     const handleMouseLeave = () => {
-      gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.6, ease: 'power3.out', overwrite: 'auto' })
+      rotateXTo(0)
+      rotateYTo(0)
     }
 
     card.addEventListener('mousemove', handleMouseMove)
@@ -175,11 +176,9 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
           top: `calc(-5vh + ${index * 25}px)`,
           transformOrigin: 'top',
           willChange: 'transform',
-          transformStyle: 'preserve-3d',
           boxShadow: `
             0 40px 60px rgba(0,0,0,0.9),
-            0 15px 25px rgba(0,0,0,0.7),
-            0 0 40px rgba(255,255,255,0.04)
+            0 15px 25px rgba(0,0,0,0.7)
           `,
         }}
       >
@@ -210,7 +209,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
               padding: '2.5rem',
               borderRadius: '24px',
               background: 'rgba(12, 12, 12, 0.82)',
-              backdropFilter: 'blur(10px) saturate(140%) brightness(0.9)',
+              backdropFilter: 'blur(6px) saturate(140%) brightness(0.9)',
               boxShadow: `
                 inset 0 1px 0 rgba(255,255,255,0.12),
                 inset 0 -1px 0 rgba(0,0,0,0.4),
