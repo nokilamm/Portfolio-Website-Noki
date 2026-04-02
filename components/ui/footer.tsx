@@ -49,13 +49,13 @@ export function Footer() {
     <footer className="w-full border-t border-white/8" style={{ background: '#141414' }}>
       <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col items-center gap-6">
         {/* Brand */}
-        <span className="text-white/90 text-sm" style={{ fontFamily: 'Times New Roman, Times, serif' }}>
+        <span className="text-white/90 text-sm" style={{ fontFamily: 'var(--font-rinter)' }}>
           noki
         </span>
 
         {/* Tagline */}
-        <p className="text-center max-w-sm text-sm text-white/35 leading-relaxed" style={{ fontFamily: 'Times New Roman, Times, serif' }}>
-          creative director & designer crafting intentional work across film, brand, and motion.
+        <p className="text-center max-w-sm text-sm text-white/35 leading-relaxed" style={{ fontFamily: 'var(--font-rinter)' }}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.
         </p>
 
         {/* Socials */}
@@ -76,7 +76,7 @@ export function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6 py-4 text-center text-xs text-white/20">
-          <span style={{ fontFamily: 'Times New Roman, Times, serif' }}>© {new Date().getFullYear()} noki. all rights reserved.</span>
+          <span style={{ fontFamily: 'var(--font-rinter)' }}>© {new Date().getFullYear()} noki. all rights reserved.</span>
         </div>
       </div>
     </footer>

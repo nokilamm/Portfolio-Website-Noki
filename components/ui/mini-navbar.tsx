@@ -34,7 +34,7 @@ export function Navbar() {
                      after:absolute after:left-0 after:-bottom-0.5 after:h-px after:w-0
                      after:bg-white/50 after:transition-[width] after:duration-200
                      hover:after:w-full"
-          style={{ fontFamily: 'Times New Roman, Times, serif', fontStyle: 'italic' }}
+          style={{ fontFamily: 'var(--font-rinter)', fontStyle: 'normal' }}
         >
           {link.label.toLowerCase()}
         </a>

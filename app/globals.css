@@ -2,7 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Rinter';
+  src: url('/fonts/Rinter.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
+  --font-rinter: 'Rinter', Georgia, serif;
   --bg: #141414;
   --header-h: 72px;
   --card-side-pad: 4vw;

@@ -36,7 +36,8 @@ export default async function CaseStudyPage({ params }: Props) {
   if (!data) notFound()
 
   return (
-    <main style={{ background: '#1c0808', minHeight: '100vh', color: '#fff' }}>
+    <main style={{ background: '#141414', minHeight: '100vh', color: '#fff' }}>
+
       {/* Back nav */}
       <nav style={{ padding: '2rem 4vw', position: 'fixed', top: 0, left: 0, zIndex: 10 }}>
         <Link
@@ -51,7 +52,6 @@ export default async function CaseStudyPage({ params }: Props) {
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
-            transition: 'color 0.2s ease',
           }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -62,50 +62,88 @@ export default async function CaseStudyPage({ params }: Props) {
       </nav>
 
       {/* Hero */}
-      <section style={{ paddingTop: '12vh', paddingBottom: '6vh', paddingLeft: '4vw', paddingRight: '4vw', maxWidth: '900px', margin: '0 auto' }}>
+      <section style={{ paddingTop: '12vh', paddingBottom: '6vh', paddingLeft: '4vw', paddingRight: '4vw', maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
-        {/* Tags */}
-        {data.tags && data.tags.length > 0 && (
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-            {data.tags.map((tag: string) => (
-              <span key={tag} style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.25rem 0.75rem', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.5)' }}>
-                {tag}
-              </span>
-            ))}
+        {/* Glass panel 1 — tags + title + description */}
+        <div style={{
+          position: 'relative',
+          borderRadius: '20px',
+          border: '1px solid rgba(255,255,255,0.14)',
+          background: 'rgba(12,12,12,0.82)',
+          backdropFilter: 'blur(10px) saturate(140%) brightness(0.9)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3), inset 1px 0 0 rgba(255,255,255,0.04)',
+          padding: '2rem 2.25rem 2.25rem',
+          overflow: 'hidden',
+        }}>
+          {/* Upper gloss */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 40%, transparent 100%)', borderRadius: '20px 20px 0 0', pointerEvents: 'none' }} />
+          {/* Top specular line */}
+          <div style={{ position: 'absolute', top: '1px', left: '10%', right: '10%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3) 40%, rgba(255,255,255,0.45) 50%, rgba(255,255,255,0.3) 60%, transparent)', pointerEvents: 'none' }} />
+          {/* Left edge catch light */}
+          <div style={{ position: 'absolute', top: '8%', left: '1px', width: '1px', bottom: '20%', background: 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%)', pointerEvents: 'none' }} />
+
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            {data.tags && data.tags.length > 0 && (
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+                {data.tags.map((tag: string) => (
+                  <span key={tag} style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.25rem 0.75rem', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <h1 style={{ fontFamily: 'var(--font-rinter)', fontStyle: 'normal', fontWeight: 400, fontSize: 'clamp(2.5rem, 6vw, 5rem)', letterSpacing: '-0.02em', lineHeight: 1.05, color: 'rgba(255,255,255,0.92)', marginBottom: '1.25rem', textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}>
+              {data.title}
+            </h1>
+
+            {data.description && (
+              <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 300, fontSize: 'clamp(1rem, 1.5vw, 1.2rem)', color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: '600px', margin: 0 }}>
+                {data.description}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Glass panel 2 — client / year / role */}
+        {(data.client || data.year || data.role) && (
+          <div style={{
+            position: 'relative',
+            borderRadius: '20px',
+            border: '1px solid rgba(255,255,255,0.14)',
+            background: 'rgba(12,12,12,0.82)',
+            backdropFilter: 'blur(10px) saturate(140%) brightness(0.9)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3), inset 1px 0 0 rgba(255,255,255,0.04)',
+            padding: '1.75rem 2.25rem',
+            overflow: 'hidden',
+          }}>
+            {/* Top specular line */}
+            <div style={{ position: 'absolute', top: '1px', left: '10%', right: '10%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25) 40%, rgba(255,255,255,0.38) 50%, rgba(255,255,255,0.25) 60%, transparent)', pointerEvents: 'none' }} />
+            {/* Left edge catch light */}
+            <div style={{ position: 'absolute', top: '15%', left: '1px', width: '1px', bottom: '15%', background: 'linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%)', pointerEvents: 'none' }} />
+
+            <div style={{ display: 'flex', gap: '3rem', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
+              {data.client && (
+                <div>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '0.4rem' }}>Client</p>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)' }}>{data.client}</p>
+                </div>
+              )}
+              {data.year && (
+                <div>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '0.4rem' }}>Year</p>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)' }}>{data.year}</p>
+                </div>
+              )}
+              {data.role && (
+                <div>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '0.4rem' }}>Role</p>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)' }}>{data.role}</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
-
-        <h1 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontStyle: 'italic', fontWeight: 400, fontSize: 'clamp(2.5rem, 6vw, 5rem)', letterSpacing: '-0.03em', lineHeight: 1.05, color: 'rgba(255,255,255,0.92)', marginBottom: '1.5rem' }}>
-          {data.title}
-        </h1>
-
-        {data.description && (
-          <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 300, fontSize: 'clamp(1rem, 1.5vw, 1.2rem)', color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: '600px', marginBottom: '2.5rem' }}>
-            {data.description}
-          </p>
-        )}
-
-        {/* Meta row */}
-        <div style={{ display: 'flex', gap: '3rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-          {data.client && (
-            <div>
-              <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '0.4rem' }}>Client</p>
-              <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)' }}>{data.client}</p>
-            </div>
-          )}
-          {data.year && (
-            <div>
-              <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '0.4rem' }}>Year</p>
-              <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)' }}>{data.year}</p>
-            </div>
-          )}
-          {data.role && (
-            <div>
-              <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '0.4rem' }}>Role</p>
-              <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)' }}>{data.role}</p>
-            </div>
-          )}
-        </div>
       </section>
 
       {/* Cover image */}
@@ -135,7 +173,7 @@ export default async function CaseStudyPage({ params }: Props) {
                   </p>
                 ),
                 h2: ({ children }) => (
-                  <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontStyle: 'italic', fontWeight: 400, fontSize: 'clamp(1.6rem, 3vw, 2.5rem)', color: 'rgba(255,255,255,0.88)', letterSpacing: '-0.02em', marginTop: '3rem', marginBottom: '1rem' }}>
+                  <h2 style={{ fontFamily: 'var(--font-rinter)', fontStyle: 'normal', fontWeight: 400, fontSize: 'clamp(1.6rem, 3vw, 2.5rem)', color: 'rgba(255,255,255,0.88)', letterSpacing: '-0.01em', marginTop: '3rem', marginBottom: '1rem' }}>
                     {children}
                   </h2>
                 ),
@@ -145,7 +183,7 @@ export default async function CaseStudyPage({ params }: Props) {
                   </h3>
                 ),
                 blockquote: ({ children }) => (
-                  <blockquote style={{ borderLeft: '2px solid rgba(255,255,255,0.15)', paddingLeft: '1.5rem', margin: '2rem 0', fontFamily: 'Playfair Display', fontStyle: 'italic', color: 'rgba(255,255,255,0.5)', fontSize: '1.1rem', lineHeight: 1.7 }}>
+                  <blockquote style={{ borderLeft: '2px solid rgba(255,255,255,0.15)', paddingLeft: '1.5rem', margin: '2rem 0', fontFamily: 'var(--font-rinter)', fontStyle: 'normal', color: 'rgba(255,255,255,0.5)', fontSize: '1.1rem', lineHeight: 1.7 }}>
                     {children}
                   </blockquote>
                 ),

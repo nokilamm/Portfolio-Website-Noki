@@ -77,6 +77,33 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
     shaderMountRef.current = null
   }
 
+  // 3D tilt on hover — GSAP merges rotateX/Y with existing scale, no conflict
+  useEffect(() => {
+    const card = cardRef.current
+    if (!card) return
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = card.getBoundingClientRect()
+      const x = (e.clientX - rect.left) / rect.width
+      const y = (e.clientY - rect.top) / rect.height
+      const rotateY = (x - 0.5) * 14
+      const rotateX = (0.5 - y) * 10
+      gsap.to(card, { rotateX, rotateY, duration: 0.25, ease: 'power2.out', overwrite: 'auto' })
+    }
+
+    const handleMouseLeave = () => {
+      gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.6, ease: 'power3.out', overwrite: 'auto' })
+    }
+
+    card.addEventListener('mousemove', handleMouseMove)
+    card.addEventListener('mouseleave', handleMouseLeave)
+
+    return () => {
+      card.removeEventListener('mousemove', handleMouseMove)
+      card.removeEventListener('mouseleave', handleMouseLeave)
+    }
+  }, [])
+
   // GSAP scroll scale + active border/shader lifecycle
   useEffect(() => {
     const card = cardRef.current
@@ -133,6 +160,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
         justifyContent: 'center',
         position: 'sticky',
         top: 0,
+        perspective: '900px',
       }}
     >
       <div
@@ -147,6 +175,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
           top: `calc(-5vh + ${index * 25}px)`,
           transformOrigin: 'top',
           willChange: 'transform',
+          transformStyle: 'preserve-3d',
           boxShadow: `
             0 40px 60px rgba(0,0,0,0.9),
             0 15px 25px rgba(0,0,0,0.7),
@@ -224,7 +253,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
             )}
 
             {/* Title */}
-            <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontStyle: 'italic', fontWeight: 400, fontSize: 'clamp(1.6rem, 3vw, 2.5rem)', color: 'rgba(255,255,255,0.92)', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: '0.75rem', position: 'relative', zIndex: 2, textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}>
+            <h3 style={{ fontFamily: 'var(--font-rinter)', fontStyle: 'normal', fontWeight: 400, fontSize: 'clamp(1.6rem, 3vw, 2.5rem)', color: 'rgba(255,255,255,0.92)', letterSpacing: '-0.01em', lineHeight: 1.1, marginBottom: '0.75rem', position: 'relative', zIndex: 2, textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}>
               {caseStudy.client || caseStudy.title}
             </h3>
 

@@ -174,8 +174,8 @@ export default function StackedCardsClient({ caseStudies }: StackedCardsClientPr
                   >
                     <span
                       style={{
-                        fontFamily: 'Playfair Display, Georgia, serif',
-                        fontStyle: 'italic',
+                        fontFamily: 'var(--font-rinter)',
+                        fontStyle: 'normal',
                         fontWeight: 400,
                         fontSize: 'clamp(1.4rem, 2.4vw, 2rem)',
                         color: 'rgba(255,255,255,0.88)',
