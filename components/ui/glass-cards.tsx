@@ -77,23 +77,24 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
     shaderMountRef.current = null
   }
 
-  // 3D tilt on hover — quickTo skips tween setup overhead on every mousemove
+  // 3D tilt on hover
   useEffect(() => {
     const card = cardRef.current
     if (!card) return
 
-    const rotateXTo = gsap.quickTo(card, 'rotateX', { duration: 0.25, ease: 'power2.out' })
-    const rotateYTo = gsap.quickTo(card, 'rotateY', { duration: 0.25, ease: 'power2.out' })
-
     const handleMouseMove = (e: MouseEvent) => {
       const rect = card.getBoundingClientRect()
-      rotateYTo((((e.clientX - rect.left) / rect.width) - 0.5) * 14)
-      rotateXTo((0.5 - ((e.clientY - rect.top) / rect.height)) * 10)
+      gsap.to(card, {
+        rotateY: (((e.clientX - rect.left) / rect.width) - 0.5) * 14,
+        rotateX: (0.5 - ((e.clientY - rect.top) / rect.height)) * 10,
+        duration: 0.25,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      })
     }
 
     const handleMouseLeave = () => {
-      rotateXTo(0)
-      rotateYTo(0)
+      gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.25, ease: 'power2.out', overwrite: 'auto' })
     }
 
     card.addEventListener('mousemove', handleMouseMove)
