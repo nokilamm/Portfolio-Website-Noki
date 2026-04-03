@@ -9,7 +9,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion"
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 
 interface DockItem {
   title: string
@@ -32,9 +32,7 @@ export function FloatingDock({
       onMouseLeave={() => mouseX.set(Infinity)}
       className={cn("mx-auto flex h-14 items-end gap-3 rounded-full px-4 pb-3", className)}
       style={{
-        background: 'rgba(255,255,255,0.03)',
-        backdropFilter: 'blur(2px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(2px) saturate(180%)',
+        background: 'rgba(255,255,255,0.05)',
         boxShadow: `
           inset 1px 1px 0px rgba(255,255,255,0.25),
           inset -1px -1px 0px rgba(255,255,255,0.08),
@@ -63,6 +61,45 @@ function IconContainer({
   href: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
+  const shaderRef = useRef<HTMLDivElement>(null)
+  // biome-ignore lint/suspicious/noExplicitAny: external lib
+  const shaderMountRef = useRef<any>(null)
+
+  const mountShader = () => {
+    const el = shaderRef.current
+    if (!el || shaderMountRef.current) return
+    // Inject canvas fill styles once
+    if (!document.getElementById('dock-shader-style')) {
+      const s = document.createElement('style')
+      s.id = 'dock-shader-style'
+      s.textContent = `.dock-shader canvas { position:absolute!important; inset:0!important; width:100%!important; height:100%!important; border-radius:50%!important; }`
+      document.head.appendChild(s)
+    }
+    el.classList.add('dock-shader')
+    import('@paper-design/shaders').then(({ ShaderMount, liquidMetalFragmentShader }) => {
+      if (!el || shaderMountRef.current) return
+      shaderMountRef.current = new ShaderMount(el, liquidMetalFragmentShader, {
+        u_repetition: 4,
+        u_softness: 0.82,
+        u_shiftRed: 0.3,
+        u_shiftBlue: 0.3,
+        u_distortion: 0,
+        u_contour: 0,
+        u_angle: 45,
+        u_scale: 5,
+        u_shape: 1,
+        u_offsetX: 0.1,
+        u_offsetY: -0.1,
+      }, undefined, 0.6)
+    }).catch(() => {})
+  }
+
+  const destroyShader = () => {
+    shaderMountRef.current?.destroy?.()
+    shaderMountRef.current = null
+  }
+
+  useEffect(() => () => destroyShader(), [])
 
   const distance = useTransform(mouseX, (val) => {
     const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 }
@@ -85,11 +122,43 @@ function IconContainer({
     <a href={href}>
       <motion.div
         ref={ref}
-        style={{ width, height }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        className="relative flex aspect-square items-center justify-center rounded-xl"
+        style={{
+          width,
+          height,
+          background: 'rgba(255,255,255,0.09)',
+          borderRadius: '50%',
+          boxShadow: `
+            inset 0 1px 0 rgba(255,255,255,0.3),
+            inset 0 -1px 0 rgba(0,0,0,0.2),
+            0 4px 16px rgba(0,0,0,0.35)
+          `,
+        }}
+        onMouseEnter={() => { setHovered(true); mountShader() }}
+        onMouseLeave={() => { setHovered(false); destroyShader() }}
+        className="relative flex aspect-square items-center justify-center"
       >
+        {/* Liquid metal fill — mounted/destroyed on hover */}
+        <div
+          ref={shaderRef}
+          className="absolute inset-0 rounded-full"
+          style={{
+            opacity: hovered ? 0.45 : 0,
+            transition: 'opacity 0.3s ease',
+            borderRadius: '50%',
+            overflow: 'hidden',
+          }}
+        />
+
+        {/* Dark vignette over shader, under icon */}
+        <div
+          className="absolute inset-0 rounded-full pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 100%)',
+            opacity: hovered ? 1 : 0,
+            transition: 'opacity 0.3s ease',
+          }}
+        />
+
         <AnimatePresence>
           {hovered && (
             <motion.div
@@ -97,6 +166,7 @@ function IconContainer({
               animate={{ opacity: 1, y: 0, x: "-50%" }}
               exit={{ opacity: 0, y: 4, x: "-50%" }}
               className="absolute -top-8 left-1/2 w-fit rounded-md border border-white/10 bg-black/70 backdrop-blur-md px-2 py-0.5 text-xs text-white/80 whitespace-pre"
+              style={{ fontFamily: 'var(--font-rinter)' }}
             >
               {title}
             </motion.div>

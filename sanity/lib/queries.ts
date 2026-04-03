@@ -20,7 +20,8 @@ export const CASE_STUDIES_QUERY = defineQuery(`
     shaderOffsetY,
     year,
     role,
-    order
+    order,
+    content
   }
 `)
 

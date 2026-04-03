@@ -5,6 +5,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { CaseStudy } from '@/lib/utils'
 import Link from 'next/link'
+import { HomeBackground } from '@/components/ui/home-background'
 import type { Selection } from 'react-aria-components'
 import { Tag, TagGroup, TagList } from '@/components/ui/tag-group'
 
@@ -212,8 +213,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
               justifyContent: 'flex-end',
               padding: '2.5rem',
               borderRadius: '24px',
-              background: 'rgba(12, 12, 12, 0.82)',
-              backdropFilter: 'blur(6px) saturate(140%) brightness(0.9)',
+              background: 'rgba(12, 12, 12, 0.90)',
               boxShadow: `
                 inset 0 1px 0 rgba(255,255,255,0.12),
                 inset 0 -1px 0 rgba(0,0,0,0.4),
@@ -317,7 +317,8 @@ export const GlassCards: React.FC<GlassCardsProps> = ({ caseStudies }) => {
   }, [filteredStudies])
 
   return (
-    <main ref={containerRef} style={{ background: '#141414' }}>
+    <main ref={containerRef} style={{ background: 'transparent', position: 'relative', zIndex: 1 }}>
+      <HomeBackground />
       {/* Skill filter section */}
       <section
         style={{
@@ -358,8 +359,6 @@ export const GlassCards: React.FC<GlassCardsProps> = ({ caseStudies }) => {
                     background: isSelected
                       ? 'rgba(255,255,255,0.08)'
                       : 'rgba(255,255,255,0)',
-                    backdropFilter: 'blur(12px) saturate(160%) brightness(1.1)',
-                    WebkitBackdropFilter: 'blur(12px) saturate(160%) brightness(1.1)',
                     border: '1px solid rgba(255,255,255,0.18)',
                     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.2)',
                     color: isSelected

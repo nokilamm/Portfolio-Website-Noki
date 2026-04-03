@@ -30,3 +30,9 @@ screenshot-scroll.mjs
 # build
 dist/
 node_modules
+
+# TS build info
+tsconfig.tsbuildinfo
+
+# workspace files
+*.code-workspace
