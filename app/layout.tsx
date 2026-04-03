@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Script from "next/script";
-import { Playfair_Display, Outfit } from 'next/font/google'
+import { Playfair_Display, Outfit, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import { SanityLive } from '@/sanity/lib/live'
 import { Navbar } from '@/components/ui/mini-navbar'
@@ -21,6 +21,13 @@ const outfit = Outfit({
   display: 'swap',
 })
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-space-grotesk',
+  display: 'swap',
+})
+
 export const metadata: Metadata = {
   title: 'Portfolio',
   description: 'Creative portfolio and case studies',
@@ -32,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${outfit.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${outfit.variable} ${spaceGrotesk.variable}`}>
       <head>
         {process.env.NODE_ENV === "development" && (
           <Script

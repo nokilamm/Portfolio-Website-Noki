@@ -1,10 +1,12 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { CaseStudy } from '@/lib/utils'
 import Link from 'next/link'
+import type { Selection } from 'react-aria-components'
+import { Tag, TagGroup, TagList } from '@/components/ui/tag-group'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -155,6 +157,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
   return (
     <div
       ref={containerRef}
+      className="glass-card-wrapper"
       style={{
         height: '100vh',
         display: 'flex',
@@ -245,7 +248,7 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
             {caseStudy.tags && caseStudy.tags.length > 0 && (
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem', position: 'relative', zIndex: 2 }}>
                 {caseStudy.tags.slice(0, 3).map((tag) => (
-                  <span key={tag} style={{ fontSize: '0.7rem', fontFamily: 'Outfit, sans-serif', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.25rem 0.75rem', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>
+                  <span key={tag} style={{ fontSize: '0.65rem', fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', padding: '0.28rem 0.75rem', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', lineHeight: 1, display: 'inline-flex', alignItems: 'center' }}>
                     {tag}
                   </span>
                 ))}
@@ -278,12 +281,24 @@ const GlassCard: React.FC<CardProps> = ({ caseStudy, index, totalCards }) => {
   )
 }
 
+const SKILLS = ['Cinematography', 'Photography', 'Graphic Design', 'Strategy', 'Copywriting']
+
 interface GlassCardsProps {
   caseStudies: CaseStudy[]
 }
 
 export const GlassCards: React.FC<GlassCardsProps> = ({ caseStudies }) => {
   const containerRef = useRef<HTMLDivElement>(null)
+  const cardsRef = useRef<HTMLElement>(null)
+  const [selectedSkills, setSelectedSkills] = useState<Selection>(new Set<string>())
+  const isFirstRender = useRef(true)
+
+  const filteredStudies =
+    selectedSkills === 'all' || (selectedSkills as Set<string>).size === 0
+      ? caseStudies
+      : caseStudies.filter((cs) =>
+          cs.tags?.some((tag) => (selectedSkills as Set<string>).has(tag))
+        )
 
   useEffect(() => {
     const container = containerRef.current
@@ -291,15 +306,84 @@ export const GlassCards: React.FC<GlassCardsProps> = ({ caseStudies }) => {
     gsap.fromTo(container, { opacity: 0 }, { opacity: 1, duration: 1.2, ease: 'power2.out' })
   }, [])
 
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return }
+    const wrappers = cardsRef.current?.querySelectorAll('.glass-card-wrapper')
+    if (!wrappers?.length) return
+    gsap.fromTo(wrappers,
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 1.4, stagger: 0.15, ease: 'power1.out' }
+    )
+  }, [filteredStudies])
+
   return (
     <main ref={containerRef} style={{ background: '#141414' }}>
-      <section style={{ color: '#ffffff', width: '100%' }}>
-        {caseStudies.map((cs, index) => (
+      {/* Skill filter section */}
+      <section
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '7rem 2rem 3rem',
+        }}
+      >
+        <TagGroup
+          selectionMode="multiple"
+          selectedKeys={selectedSkills}
+          onSelectionChange={setSelectedSkills}
+          aria-label="Filter case studies by skill"
+        >
+          <TagList className="flex flex-wrap gap-3 justify-center">
+            {SKILLS.map((skill) => {
+              const isSelected =
+                selectedSkills !== 'all' && (selectedSkills as Set<string>).has(skill)
+              return (
+                <Tag
+                  key={skill}
+                  id={skill}
+                  style={{
+                    fontFamily: 'var(--font-space-grotesk), sans-serif',
+                    fontSize: '0.7rem',
+                    fontWeight: 500,
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0.4rem 1.1rem',
+                    lineHeight: 1,
+                    borderRadius: '999px',
+                    cursor: 'pointer',
+                    outline: 'none',
+                    background: isSelected
+                      ? 'rgba(255,255,255,0.08)'
+                      : 'rgba(255,255,255,0)',
+                    backdropFilter: 'blur(12px) saturate(160%) brightness(1.1)',
+                    WebkitBackdropFilter: 'blur(12px) saturate(160%) brightness(1.1)',
+                    border: '1px solid rgba(255,255,255,0.18)',
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.2)',
+                    color: isSelected
+                      ? 'rgba(255,255,255,0.92)'
+                      : 'rgba(255,255,255,0.45)',
+                    transition: 'background 0.2s, color 0.2s',
+                  }}
+                  className=""
+                >
+                  {skill}
+                </Tag>
+              )
+            })}
+          </TagList>
+        </TagGroup>
+      </section>
+
+      <section ref={cardsRef} style={{ color: '#ffffff', width: '100%' }}>
+        {filteredStudies.map((cs, index) => (
           <GlassCard
             key={cs._id}
             caseStudy={cs}
             index={index}
-            totalCards={caseStudies.length}
+            totalCards={filteredStudies.length}
           />
         ))}
       </section>
